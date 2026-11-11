@@ -1,1 +1,371 @@
-Testing...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrations for Internal Recollections</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1e3a8a;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --success-bg: #dcfce7;
+            --success-text: #14532d;
+            --error-bg: #fef2f2;
+            --error-text: #7f1d1d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 36px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 580px;
+            border: 1px solid #e2e8f0;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label.field-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+        }
+
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .event-card {
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .event-card:hover:not(.disabled) {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .event-card.selected {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+        }
+
+        .event-card.disabled {
+            background-color: #f1f5f9;
+            opacity: 0.65;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .event-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .event-details input[type="radio"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        .event-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .event-time {
+            font-size: 0.825rem;
+            color: var(--muted);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            background-color: #dbeafe;
+            color: var(--primary);
+        }
+
+        .event-card.disabled .badge {
+            background-color: #cbd5e1;
+            color: #475569;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: var(--muted);
+            cursor: wait;
+        }
+
+        .alert {
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .alert-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Internal Recollection Registration</h1>
+    <p class="subtitle">Please select the internal recollection you wish you attend from the list below. Spaces are limited but once registered, you will receive an email confirmation.</p>
+
+    <div id="alertBox" class="alert"></div>
+
+    <form id="registrationForm">
+        <div class="form-group">
+            <label class="field-label" for="fullName">Full Name</label>
+            <input type="text" id="fullName" required placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+            <label class="field-label" for="email">Email Address</label>
+            <input type="email" id="email" required placeholder="john@example.com">
+        </div>
+
+        <div class="form-group">
+            <label class="field-label">Select Event</label>
+            <div class="events-list" id="eventsContainer">
+                <!-- Events rendered by JS -->
+            </div>
+        </div>
+
+        <button type="submit" id="submitBtn">Complete Registration</button>
+    </form>
+</div>
+
+<script>
+    // =========================================================================
+    // CONFIGURATION
+    // 1. Deploy your Google Apps Script as a Web App (access set to "Anyone").
+    // 2. Paste the Web App URL into SCRIPT_URL below.
+    // =========================================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyV0SxDy6jUogcixytnv8hboXKARogbucenzVRsbYUND_XvOnlPdc4H5LLsYzwcWnxD/exec";
+
+    // Initial Event Settings (Limits & Fallback Data)
+    const initialEvents = [
+        { id: 'event-1', title: 'WH - TUE December 1, 2026', time: '7PM - 9PM', limit: 26 },
+        { id: 'event-2', title: 'WH - WED December 2, 2026', time: '7PM - 9PM', limit: 26 },
+        { id: 'event-3', title: 'EC - WED December 2, 2026', time: '7PM - 9PM', limit: 50 }
+    ];
+
+    let currentCounts = { 'event-1': 0, 'event-2': 0, 'event-3': 0 };
+
+    async function fetchCounts() {
+        if (!SCRIPT_URL || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+            renderEvents();
+            return;
+        }
+        try {
+            const res = await fetch(SCRIPT_URL + '?action=getCounts');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'success') {
+                    currentCounts = data.counts;
+                }
+            }
+        } catch (e) {
+            console.warn("Could not fetch live counts from Google Script, using local rendering.", e);
+        }
+        renderEvents();
+    }
+
+    function renderEvents() {
+        const container = document.getElementById('eventsContainer');
+        container.innerHTML = '';
+
+        initialEvents.forEach(evt => {
+            const registered = currentCounts[evt.id] || 0;
+            const remaining = evt.limit - registered;
+            const isFull = remaining <= 0;
+
+            const card = document.createElement('label');
+            card.className = `event-card ${isFull ? 'disabled' : ''}`;
+            
+            card.innerHTML = `
+                <div class="event-details">
+                    <input type="radio" name="selectedEvent" value="${evt.id}" data-title="${evt.title}" ${isFull ? 'disabled' : ''} required>
+                    <div>
+                        <div class="event-title">${evt.title}</div>
+                        <div class="event-time">${evt.time}</div>
+                    </div>
+                </div>
+                <span class="badge">${isFull ? 'FULL' : remaining + ' left'}</span>
+            `;
+
+            if (!isFull) {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                });
+            }
+
+            container.appendChild(card);
+        });
+    }
+
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const alertBox = document.getElementById('alertBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const name = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const selectedRadio = document.querySelector('input[name="selectedEvent"]:checked');
+
+        const showAlert = (msg, type) => {
+            alertBox.className = `alert alert-${type}`;
+            alertBox.textContent = msg;
+            alertBox.style.display = 'block';
+        };
+
+        if (!selectedRadio) {
+            showAlert('Please select an event.', 'error');
+            return;
+        }
+
+        const eventId = selectedRadio.value;
+        const eventTitle = selectedRadio.getAttribute('data-title');
+
+        if (!SCRIPT_URL || SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+            showAlert('Form setup incomplete: Please insert your Google Apps Script Web App URL into the code.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registering...';
+
+        try {
+            // Send payload via POST to Google Apps Script
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' }, // Avoid CORS pre-flight complexity
+                body: JSON.stringify({ name, email, eventId, eventTitle })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showAlert(`Success! You have registered for "${eventTitle}". A confirmation email has been sent to ${email}.`, 'success');
+                this.reset();
+                document.querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
+                fetchCounts(); // Refresh live capacity
+            } else {
+                showAlert(result.message || 'Registration failed.', 'error');
+            }
+        } catch (err) {
+            showAlert('An error occurred submitting your registration. Please try again.', 'error');
+            console.error(err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Registration';
+        }
+    });
+
+    // Initial load
+    fetchCounts();
+</script>
+
+</body>
+</html>
